@@ -15,13 +15,15 @@ export class Cv2AmbulanceWlApp {
 
   @State() private relativePath = "";
 
-  @Prop() basePath: string="";
+  @Prop() basePath: string = "";
+  @Prop() apiBase: string;
+  @Prop() ambulanceId: string;
 
   componentWillLoad() {
     const baseUri = new URL(this.basePath, document.baseURI || "/").pathname;
 
     const toRelative = (path: string) => {
-      if (path.startsWith( baseUri)) {
+      if (path.startsWith(baseUri)) {
         this.relativePath = path.slice(baseUri.length)
       } else {
         this.relativePath = ""
@@ -40,28 +42,28 @@ export class Cv2AmbulanceWlApp {
   render() {
     let element = "list"
     let entryId = "@new"
-  
-    if ( this.relativePath.startsWith("entry/"))
-    {
+
+    if (this.relativePath.startsWith("entry/")) {
       element = "editor";
       entryId = this.relativePath.split("/")[1]
     }
-  
-    const navigate = (path:string) => {
+
+    const navigate = (path: string) => {
       const absolute = new URL(path, new URL(this.basePath, document.baseURI)).pathname;
       window.navigation.navigate(absolute)
     }
-  
+
     return (
       <Host>
-        { element === "editor"
-        ? <cv2-ambulance-wl-editor entry-id={entryId}
-            oneditor-closed={ () => navigate("./list")} >
+        {element === "editor"
+          ? <cv2-ambulance-wl-editor entry-id={entryId}
+            oneditor-closed={() => navigate("./list")}>
           </cv2-ambulance-wl-editor>
-        : <cv2-ambulance-wl-list
-        onentry-clicked={ (ev: CustomEvent<string>)=> navigate("./entry/" + ev.detail) }></cv2-ambulance-wl-list>
+          : <cv2-ambulance-wl-list ambulance-id={this.ambulanceId} api-base={this.apiBase}
+            onentry-clicked={(ev: CustomEvent<string>) => navigate("./entry/" + ev.detail)}>
+          </cv2-ambulance-wl-list>
         }
-  
+
       </Host>
     );
   }
